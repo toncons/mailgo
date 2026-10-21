@@ -43,12 +43,9 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <button id="btnGasGuide" onclick="toggleModal('gasGuideModal', true)" class="px-3.5 py-2 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-sm font-semibold transition flex items-center gap-2 border border-emerald-200">
-                        <i class="fa-solid fa-code text-emerald-600"></i>
-                        <span>GAS連携コード・設定</span>
-                    </button>
-                    <button id="btnSettings" onclick="toggleModal('settingsModal', true)" class="p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition">
-                        <i class="fa-solid fa-gear text-lg"></i>
+                    <button id="btnSettings" onclick="toggleModal('settingsModal', true)" class="p-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition border border-slate-200 flex items-center gap-2 text-xs font-semibold">
+                        <i class="fa-solid fa-gear text-sm"></i>
+                        <span>接続設定 (GAS URL)</span>
                     </button>
                 </div>
             </div>
@@ -64,10 +61,20 @@
                         <i class="fa-regular fa-clock text-blue-600"></i>
                         新規メール予約作成
                     </h2>
-                    <span class="text-xs px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full font-medium">Step 1</span>
+                    <span class="text-xs px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full font-medium">予約登録</span>
                 </div>
 
                 <form id="scheduleForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+                    <!-- Sender Name -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">送信者名 (表示名)</label>
+                        <div class="relative">
+                            <i class="fa-regular fa-id-card absolute left-3.5 top-3 text-slate-400 text-sm"></i>
+                            <input type="text" id="senderName" placeholder="例: 〇〇事務局 / 山田 太郎 (空欄の場合はGoogle名)"
+                                class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none text-sm transition">
+                        </div>
+                    </div>
+
                     <!-- Recipient Email -->
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">宛先 (To)</label>
@@ -109,10 +116,10 @@
                     <!-- Gmail Auto-Draft / Immediate Reserve Option -->
                     <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs text-slate-600 space-y-2">
                         <div class="flex items-center justify-between">
-                            <span class="font-medium text-slate-700">Gmail機能連携</span>
+                            <span class="font-medium text-slate-700">Gmail自動連携</span>
                             <span id="modeBadge" class="text-[10px] font-semibold px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded">GASトリガー連動</span>
                         </div>
-                        <p class="leading-relaxed">スプレッドシートに登録後、指定日時にGmail API / GASトリガーにより指定アドレスへ自動送信されます。</p>
+                        <p class="leading-relaxed">スプレッドシートに登録後、指定日時になるとGoogle Apps ScriptトリガーによりGmailから送信されます。</p>
                     </div>
 
                     <!-- Submit Button -->
@@ -155,7 +162,7 @@
                         <thead class="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider border-b border-slate-200">
                             <tr>
                                 <th class="py-3 px-4">送信予定日時</th>
-                                <th class="py-3 px-4">宛先 / 件名</th>
+                                <th class="py-3 px-4">差出人 / 宛先 / 件名</th>
                                 <th class="py-3 px-4">ステータス</th>
                                 <th class="py-3 px-4 text-right">操作</th>
                             </tr>
@@ -171,7 +178,7 @@
                     <div>全 <span id="totalCount" class="font-bold text-slate-700">0</span> 件</div>
                     <div id="gasStatusIndicator" class="flex items-center gap-1.5 text-emerald-600 text-[11px] font-medium">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        GAS Web Appエンドポイント接続可能
+                        GAS Web App接続状態チェック完了
                     </div>
                 </div>
             </div>
@@ -186,7 +193,7 @@
             </button>
             <h3 class="text-base font-bold text-slate-900 flex items-center gap-2 mb-4">
                 <i class="fa-solid fa-sliders text-blue-600"></i>
-                GAS App URL & スプレッドシート設定
+                GAS Web App URL 設定
             </h3>
             <p class="text-xs text-slate-500 mb-4">Google Apps ScriptでウェブアプリとしてデプロイしたURLを入力してください。</p>
 
@@ -209,42 +216,6 @@
         </div>
     </div>
 
-    <div id="gasGuideModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-3xl w-full p-6 shadow-2xl border border-slate-100 relative max-h-[90vh] flex flex-col">
-            <button onclick="toggleModal('gasGuideModal', false)" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-            
-            <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2 mb-2">
-                <i class="fa-brands fa-google text-emerald-600"></i>
-                Google Apps Script (GAS) 連携用コード
-            </h3>
-            <p class="text-xs text-slate-500 mb-4">このスクリプトをGoogleスプレッドシートの「拡張機能 > Apps Script」に貼り付けてデプロイしてください。</p>
-
-            <div class="relative bg-slate-900 rounded-xl overflow-hidden flex-grow flex flex-col">
-                <div class="flex items-center justify-between px-4 py-2 bg-slate-800 text-slate-300 text-xs">
-                    <span>Code.gs</span>
-                    <button onclick="copyGasCode()" class="text-xs px-2.5 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded font-medium transition flex items-center gap-1">
-                        <i class="fa-regular fa-copy"></i>
-                        <span>コードをコピー</span>
-                    </button>
-                </div>
-                <pre class="p-4 text-xs font-mono text-emerald-400 overflow-y-auto custom-scrollbar flex-grow whitespace-pre" id="gasCodeDisplay"></pre>
-            </div>
-
-            <div class="mt-4 text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200">
-                <strong class="font-bold text-slate-800">セットアップ手順:</strong>
-                <ol class="list-decimal list-inside space-y-1 mt-1 text-slate-600">
-                    <li>スプレッドシートを開き「拡張機能」→「Apps Script」を選択</li>
-                    <li>上記コードを貼り付けて保存</li>
-                    <li>「デプロイ」→「新しいデプロイ」で「ウェブアプリ」を選択（アクセスできるユーザー: 全員）</li>
-                    <li>発行された「ウェブアプリ URL」を本アプリの設定画面に入力</li>
-                    <li>GAS内で <code class="bg-slate-200 px-1 rounded text-slate-800">setupTrigger()</code> を1回実行して時限送信タイマーを起動</li>
-                </ol>
-            </div>
-        </div>
-    </div>
-
     <!-- Notification Toast -->
     <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white text-xs px-4 py-3 rounded-xl shadow-2xl border border-slate-800 transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-2">
         <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
@@ -258,95 +229,8 @@
             mails: JSON.parse(localStorage.getItem('scheduled_mails') || '[]')
         };
 
-        // GAS Template Script
-        const GAS_SCRIPT_TEMPLATE = `// Google Apps Script (Code.gs)
-function doPost(e) {
-  try {
-    const data = JSON.parse(e.postData.contents);
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    
-    // ヘッダーが存在しない場合は追加
-    if (sheet.getLastRow() === 0) {
-      sheet.appendRow(["ID", "宛先", "送信予定日時", "件名", "本文", "ステータス", "作成日時"]);
-    }
-    
-    const id = "MAIL_" + new Date().getTime();
-    sheet.appendRow([
-      id,
-      data.recipient,
-      data.scheduledAt,
-      data.subject,
-      data.body,
-      "予約中",
-      new Date().toLocaleString("ja-JP")
-    ]);
-    
-    return ContentService.createTextOutput(JSON.stringify({ status: "success", id: id }))
-      .setMimeType(ContentService.MimeType.JSON);
-  } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: err.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
-function doGet(e) {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  const rows = sheet.getDataRange().getValues();
-  if (rows.length <= 1) {
-    return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
-  }
-  
-  const headers = rows[0];
-  const data = rows.slice(1).map(row => ({
-    id: row[0],
-    recipient: row[1],
-    scheduledAt: row[2],
-    subject: row[3],
-    body: row[4],
-    status: row[5],
-    createdAt: row[6]
-  }));
-  
-  return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
-}
-
-// 時間指定型トリガーで1分ごとに実行し、予定時刻を過ぎたメールをGmailで送信
-function checkAndSendEmails() {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  const rows = sheet.getDataRange().getValues();
-  const now = new Date();
-  
-  for (let i = 1; i < rows.length; i++) {
-    const status = rows[i][5];
-    const scheduledAt = new Date(rows[i][2]);
-    
-    if (status === "予約中" && scheduledAt <= now) {
-      const recipient = rows[i][1];
-      const subject = rows[i][3];
-      const body = rows[i][4];
-      
-      try {
-        // GmailAppを利用して送信
-        GmailApp.sendEmail(recipient, subject, body);
-        sheet.getRange(i + 1, 6).setValue("送信完了");
-      } catch (err) {
-        sheet.getRange(i + 1, 6).setValue("エラー: " + err.toString());
-      }
-    }
-  }
-}
-
-// 1分置きのタイマー設置関数（GASのエディタで一度だけ実行）
-function setupTrigger() {
-  ScriptApp.newTrigger('checkAndSendEmails')
-    .timeBased()
-    .everyMinutes(1)
-    .create();
-}`;
-
         // Initialize UI
         document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('gasCodeDisplay').textContent = GAS_SCRIPT_TEMPLATE;
             if (appState.gasUrl) {
                 document.getElementById('gasUrlInput').value = appState.gasUrl;
             }
@@ -380,23 +264,12 @@ function setupTrigger() {
             fetchScheduledMails();
         }
 
-        // Copy GAS Script to Clipboard
-        function copyGasCode() {
-            const code = document.getElementById('gasCodeDisplay').textContent;
-            const textarea = document.createElement('textarea');
-            textarea.value = code;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-            showToast('GASコードをクリップボードにコピーしました');
-        }
-
         // Handle Schedule Form Submission
         async function handleFormSubmit(event) {
             event.preventDefault();
 
-            const recipient = document.getElementById('recipientEmail').value;
+            const senderName = document.getElementById('senderName').value.trim();
+            const recipient = document.getElementById('recipientEmail').value.trim();
             const date = document.getElementById('sendDate').value;
             const time = document.getElementById('sendTime').value;
             const subject = document.getElementById('emailSubject').value;
@@ -405,6 +278,7 @@ function setupTrigger() {
             const scheduledAt = `${date} ${time}`;
             const newItem = {
                 id: 'MAIL_' + Date.now(),
+                senderName,
                 recipient,
                 scheduledAt,
                 subject,
@@ -503,13 +377,15 @@ function setupTrigger() {
                     statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600">キャンセル</span>`;
                 }
 
+                const senderDisplay = item.senderName ? `<span class="text-[10px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded mr-1">${escapeHtml(item.senderName)}</span>` : '';
+
                 tr.innerHTML = `
                     <td class="py-3 px-4 font-mono text-[11px] whitespace-nowrap text-slate-700">
                         <i class="fa-regular fa-calendar mr-1 text-slate-400"></i>${item.scheduledAt}
                     </td>
                     <td class="py-3 px-4 max-w-xs">
                         <div class="font-medium text-slate-800 truncate">${escapeHtml(item.subject)}</div>
-                        <div class="text-[11px] text-slate-400 truncate">${escapeHtml(item.recipient)}</div>
+                        <div class="text-[11px] text-slate-400 truncate">${senderDisplay}To: ${escapeHtml(item.recipient)}</div>
                     </td>
                     <td class="py-3 px-4 whitespace-nowrap">
                         ${statusBadge}
